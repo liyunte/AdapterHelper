@@ -33,6 +33,7 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
     private static final int HEADER_VIEW = 520;
     private static final int FOOTER_VIEW = 1024;
     private static final int EMPTY_VIEW = 2019;
+    private boolean openInterceptClick;//开启拦截点击事件
 
     /**
      * 单类型
@@ -227,12 +228,14 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
             public void onClick(View v) {
                 if (mItemListener != null) {
                     int position = viewHolder.getAdapterPosition() - getHeaderCount();
-                    long timespan = System.currentTimeMillis() - lastClickTime;
-                    if (timespan < QUICK_EVENT_TIME_SPAN) {
-                        //点击阻塞防止误操作
-                        return;
+                    if (openInterceptClick){
+                        long timespan = System.currentTimeMillis() - lastClickTime;
+                        if (timespan < QUICK_EVENT_TIME_SPAN) {
+                            //点击阻塞防止误操作
+                            return;
+                        }
+                        lastClickTime = System.currentTimeMillis();
                     }
-                    lastClickTime = System.currentTimeMillis();
                     mItemListener.onItemClick(v, mData.get(position), position);
                 }
             }
@@ -444,6 +447,12 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
         notifyDataSetChanged();
     }
 
+    /**
+     * 开启拦截点击事件
+     */
+    public void setOpenInterceptClick(){
+        openInterceptClick = true;
+    }
 
     public List<T> getData() {
         return mData;

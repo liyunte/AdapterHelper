@@ -1,5 +1,11 @@
 package com.lyt.adapterhelper;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelStore;
+import android.arch.lifecycle.ViewModelStoreOwner;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,7 +26,6 @@ public class MainActivity extends BaseMainActivity {
         RViewHelper holper = new RViewHelper.Builder().build(this);
         demoAdapter = (DemoAdapter) holper.getmRViewAdapter();
         initData();
-
     }
 
     private void initData() {
