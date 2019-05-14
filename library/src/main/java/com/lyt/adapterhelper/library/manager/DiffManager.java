@@ -30,14 +30,26 @@ public class DiffManager<T> {
         return diffCallback;
     }
 
+    /**
+     * 设置旧数据  一般为adapter.getData()
+     * @param oldList 旧数据
+     */
     public void setOldList(List<T> oldList) {
         diffCallback.setOldList(oldList);
     }
 
+    /**
+     * 设置新数据 一般为网络上的数据
+     * @param newList 新数据
+     */
     public void setNewList(List<T> newList) {
         diffCallback.setNewList(newList);
     }
 
+    /**
+     * 开始差分 建议在子线程中调用
+     * @return 差分后的数据源
+     */
     public DiffUtil.DiffResult diff() {
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(diffCallback, true);
         return result;

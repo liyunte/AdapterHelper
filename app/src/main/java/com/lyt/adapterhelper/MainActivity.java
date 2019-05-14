@@ -1,18 +1,14 @@
 package com.lyt.adapterhelper;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelStore;
-import android.arch.lifecycle.ViewModelStoreOwner;
+
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
-
 import com.lyt.adapterhelper.library.RViewHelper;
 import com.lyt.adapterhelper.library.base.RViewAdapter;
-
+import com.lyt.adapterhelper.library.listener.OnItemClickListener;
+import com.lyt.adapterhelper.library.listener.OnItemLongClickListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +21,19 @@ public class MainActivity extends BaseMainActivity {
         setContentView(R.layout.activity_main);
         RViewHelper holper = new RViewHelper.Builder().build(this);
         demoAdapter = (DemoAdapter) holper.getmRViewAdapter();
+        demoAdapter.setOpenInterceptClick();//开启拦截点击事件
+        demoAdapter.setOnItemClickListener(new OnItemClickListener<DemoBean>() {
+            @Override
+            public void onItemClick(View view, DemoBean entity, int position) {
+                Log.e("liyunte",entity.getName());
+            }
+        });
+        demoAdapter.setOnItemLongClickListener(new OnItemLongClickListener<DemoBean>() {
+            @Override
+            public void onItemLongClick(View view, DemoBean entity, int position) {
+
+            }
+        });
         initData();
     }
 

@@ -21,6 +21,16 @@ public class ARViewItem implements RViewItem<DemoBean> {
     }
 
     @Override
+    public int[] getClickIds() {
+        return new int[]{R.id.tv_app_demo_item_content};
+    }
+
+    @Override
+    public int[] getLongClickIds() {
+        return new int[0];
+    }
+
+    @Override
     public boolean isItemView(DemoBean entity, int position) {
         return entity.getId()%3==0;
     }

@@ -20,6 +20,20 @@ public interface RViewItem<T> {
      */
     boolean openClick();
 
+
+    /**
+     *
+     * @return
+     */
+    int[] getClickIds();
+
+    /**
+     *
+     * @return
+     */
+    int[] getLongClickIds();
+
+
     /**
      * 是否为当前item布局
      * @return

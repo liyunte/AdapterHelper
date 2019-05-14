@@ -21,6 +21,16 @@ public class BRViewItem implements RViewItem<DemoBean> {
     }
 
     @Override
+    public int[] getClickIds() {
+        return new int[0];
+    }
+
+    @Override
+    public int[] getLongClickIds() {
+        return new int[0];
+    }
+
+    @Override
     public boolean isItemView(DemoBean entity, int position) {
         return entity.getId()%3==1;
     }

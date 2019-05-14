@@ -9,7 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.lyt.adapterhelper.library.holder.RViewHolder;
-import com.lyt.adapterhelper.library.listener.ItemListener;
+import com.lyt.adapterhelper.library.listener.OnItemClickListener;
+import com.lyt.adapterhelper.library.listener.OnItemLongClickListener;
 import com.lyt.adapterhelper.library.listener.RViewItem;
 import com.lyt.adapterhelper.library.manager.HeaderFooterManager;
 import com.lyt.adapterhelper.library.manager.NotifyObserver;
@@ -26,9 +27,10 @@ import java.util.List;
 public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
     private List<T> mData;//数据源
     private RViewItemManager<T> mItemStyle;//item布局类型管理器
-    private ItemListener<T> mItemListener;//item点击监听
+    private OnItemClickListener<T> mItemListener;//item点击监听
+    private OnItemLongClickListener<T> itemLongClickListener;//item长按事件监听
     private long lastClickTime;//上次点击的时间
-    private static final long QUICK_EVENT_TIME_SPAN = 1000;//item点击事件误操作设置的时间间隔
+    private static final long QUICK_EVENT_TIME_SPAN = 700;//item点击事件误操作设置的时间间隔
     private HeaderFooterManager headerFooterManager;
     private static final int HEADER_VIEW = 520;
     private static final int FOOTER_VIEW = 1024;
@@ -101,9 +103,12 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
         }
         RViewItem rViewItem = mItemStyle.getRViewItem(viewType);
         int layoutId = rViewItem.getItemLayout();
+        int[] clickIds = rViewItem.getClickIds();
+        int[] longClickIds = rViewItem.getLongClickIds();
+
         RViewHolder viewHolder = RViewHolder.createViewHolder(parent.getContext(), parent, layoutId);
         if (rViewItem.openClick()) {
-            setListener(viewHolder);
+            setListener(viewHolder,clickIds,longClickIds);
         }
         return viewHolder;
     }
@@ -222,34 +227,46 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
         mItemStyle.convert(holder, t, position, payloads);
     }
 
-    private void setListener(final RViewHolder viewHolder) {
-        viewHolder.getContentView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mItemListener != null) {
-                    int position = viewHolder.getAdapterPosition() - getHeaderCount();
-                    if (openInterceptClick){
-                        long timespan = System.currentTimeMillis() - lastClickTime;
-                        if (timespan < QUICK_EVENT_TIME_SPAN) {
-                            //点击阻塞防止误操作
-                            return;
+
+
+    private void setListener(final RViewHolder viewHolder,int[] clickIds,int[] longClickIds) {
+        if (clickIds!=null&&clickIds.length>0){
+            for (int id :clickIds){
+                viewHolder.getView(id).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mItemListener!=null){
+                            if (openInterceptClick){
+                                long timespan = System.currentTimeMillis() - lastClickTime;
+                                if (timespan < QUICK_EVENT_TIME_SPAN) {
+                                    //点击阻塞防止误操作
+                                    return;
+                                }
+                                lastClickTime = System.currentTimeMillis();
+                            }
+                            int position = viewHolder.getAdapterPosition() - getHeaderCount();
+                            mItemListener.onItemClick(v, mData.get(position), position);
                         }
-                        lastClickTime = System.currentTimeMillis();
+
                     }
-                    mItemListener.onItemClick(v, mData.get(position), position);
-                }
+                });
             }
-        });
-        viewHolder.getContentView().setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                if (mItemListener != null) {
-                    int position = viewHolder.getAdapterPosition() - getHeaderCount();
-                    return mItemListener.onItemLongClick(v, mData.get(position), position);
-                }
-                return false;
+        }
+        if (longClickIds!=null&&longClickIds.length>0){
+            for (int id :longClickIds){
+               viewHolder.getView(id).setOnLongClickListener(new View.OnLongClickListener() {
+                   @Override
+                   public boolean onLongClick(View v) {
+                       if (itemLongClickListener!=null){
+                           int position = viewHolder.getAdapterPosition() - getHeaderCount();
+                           itemLongClickListener.onItemLongClick(v,mData.get(position),position);
+                       }
+                       return false;
+                   }
+               });
             }
-        });
+        }
+
     }
 
 
@@ -268,8 +285,12 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
      *
      * @param itemListener item事件
      */
-    public void setOnItemListener(ItemListener<T> itemListener) {
+    public void setOnItemClickListener(OnItemClickListener<T> itemListener) {
         this.mItemListener = itemListener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener<T> itemLongClickListener){
+        this.itemLongClickListener = itemLongClickListener;
     }
 
     /**
@@ -454,6 +475,10 @@ public class RViewAdapter<T> extends RecyclerView.Adapter<RViewHolder> {
         openInterceptClick = true;
     }
 
+    /**
+     * 获取数据
+     * @return
+     */
     public List<T> getData() {
         return mData;
     }
